@@ -378,7 +378,8 @@ typedef ngx_int_t (*ngx_stream_filter_pt)(ngx_stream_session_t *s,
     ngx_chain_t *chain, ngx_uint_t from_upstream);
 
 
-extern ngx_stream_filter_pt  ngx_stream_top_filter;
+extern ngx_stream_filter_pt   ngx_stream_top_filter;
+extern ngx_stream_handler_pt  ngx_stream_top_server_conf_filter;
 
 
 #endif /* _NGX_STREAM_H_INCLUDED_ */

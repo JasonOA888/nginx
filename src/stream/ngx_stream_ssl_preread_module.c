@@ -583,9 +583,17 @@ ngx_stream_ssl_preread_servername(ngx_stream_session_t *s,
         return NGX_OK;
     }
 
-    s->srv_conf = cscf->ctx->srv_conf;
+    if (s->srv_conf != cscf->ctx->srv_conf) {
+        s->srv_conf = cscf->ctx->srv_conf;
 
-    ngx_set_connection_log(c, cscf->error_log);
+        ngx_set_connection_log(c, cscf->error_log);
+
+        if (ngx_stream_top_server_conf_filter
+            && ngx_stream_top_server_conf_filter(s) != NGX_OK)
+        {
+            return NGX_ERROR;
+        }
+    }
 
     return NGX_OK;
 }

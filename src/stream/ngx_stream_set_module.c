@@ -24,6 +24,7 @@ typedef struct {
 
 
 static ngx_int_t ngx_stream_set_handler(ngx_stream_session_t *s);
+static ngx_int_t ngx_stream_set_server_conf(ngx_stream_session_t *s);
 static ngx_int_t ngx_stream_set_var(ngx_stream_session_t *s,
     ngx_stream_variable_value_t *v, uintptr_t data);
 static ngx_int_t ngx_stream_set_init(ngx_conf_t *cf);
@@ -70,6 +71,24 @@ ngx_module_t  ngx_stream_set_module = {
     NULL,                                  /* exit master */
     NGX_MODULE_V1_PADDING
 };
+
+
+static ngx_stream_handler_pt  ngx_stream_next_server_conf_filter;
+
+
+static ngx_int_t
+ngx_stream_set_server_conf(ngx_stream_session_t *s)
+{
+    if (ngx_stream_set_handler(s) == NGX_ERROR) {
+        return NGX_ERROR;
+    }
+
+    if (ngx_stream_next_server_conf_filter) {
+        return ngx_stream_next_server_conf_filter(s);
+    }
+
+    return NGX_OK;
+}
 
 
 static ngx_int_t
@@ -132,6 +151,9 @@ ngx_stream_set_init(ngx_conf_t *cf)
     }
 
     *h = ngx_stream_set_handler;
+
+    ngx_stream_next_server_conf_filter = ngx_stream_top_server_conf_filter;
+    ngx_stream_top_server_conf_filter = ngx_stream_set_server_conf;
 
     return NGX_OK;
 }

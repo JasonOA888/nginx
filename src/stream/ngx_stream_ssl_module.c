@@ -650,9 +650,17 @@ ngx_stream_ssl_servername(ngx_ssl_conn_t *ssl_conn, int *ad, void *arg)
         goto done;
     }
 
-    s->srv_conf = cscf->ctx->srv_conf;
+    if (s->srv_conf != cscf->ctx->srv_conf) {
+        s->srv_conf = cscf->ctx->srv_conf;
 
-    ngx_set_connection_log(c, cscf->error_log);
+        ngx_set_connection_log(c, cscf->error_log);
+
+        if (ngx_stream_top_server_conf_filter
+            && ngx_stream_top_server_conf_filter(s) != NGX_OK)
+        {
+            goto error;
+        }
+    }
 
     sscf = ngx_stream_get_module_srv_conf(cscf->ctx, ngx_stream_ssl_module);
 

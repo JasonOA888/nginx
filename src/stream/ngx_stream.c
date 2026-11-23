@@ -49,7 +49,8 @@ static ngx_int_t ngx_stream_add_addrs6(ngx_conf_t *cf,
 ngx_uint_t  ngx_stream_max_module;
 
 
-ngx_stream_filter_pt  ngx_stream_top_filter;
+ngx_stream_filter_pt   ngx_stream_top_filter;
+ngx_stream_handler_pt  ngx_stream_top_server_conf_filter;
 
 
 static ngx_command_t  ngx_stream_commands[] = {
@@ -242,6 +243,8 @@ ngx_stream_block(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     if (ngx_stream_init_phases(cf, cmcf) != NGX_OK) {
         return NGX_CONF_ERROR;
     }
+
+    ngx_stream_top_server_conf_filter = NULL;
 
     for (m = 0; cf->cycle->modules[m]; m++) {
         if (cf->cycle->modules[m]->type != NGX_STREAM_MODULE) {
